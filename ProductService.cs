@@ -39,8 +39,18 @@ namespace Test
 
         public Product Get(int id)
         {
-            var allProducts = GetAll();
-            return allProducts.Find(p => p.ID == id);
+            if(id < 0)
+            {
+                throw new ArgumentException();
+            }
+
+           
+            else {
+                var allProducts = GetAll();
+                return allProducts.Find(p => p.ID == id);
+
+            }
+           
         }
 
         public List<Product> GetAll()
@@ -98,6 +108,11 @@ namespace Test
                 }
 
                 Console.WriteLine($"Product with ID {id} has been deleted.");
+            }
+
+            else if (id < 0)
+            {
+                throw new ArgumentException();
             }
             else
             {
