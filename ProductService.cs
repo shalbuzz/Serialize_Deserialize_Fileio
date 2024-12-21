@@ -18,24 +18,28 @@ namespace Test
 
         public void Create(Product product)
         {
+            string path = "C:\\Users\\user\\Desktop\\Folder1\\";
+            string filePath = Path.Combine(path, "example.txt");
 
+            if (product.SalePrice < product.CostPrice)
+            {
+                Console.WriteLine($"Product '{product.Name}' has invalid SalePrice and will not be added.");
+                return; 
+            }
 
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
 
-            string path = "C:\\Users\\user\\Desktop\\";
             var productJson = JsonSerializer.Serialize(product);
-            //File.AppendAllLines(path + "Folder/example.txt", product)
-            using (StreamWriter streamWriter = new StreamWriter(path + "Folder1/example.txt", true))
+
+            using (StreamWriter streamWriter = new StreamWriter(filePath, true))
             {
                 streamWriter.WriteLine(productJson);
             }
-            
-
-
-
-
-
-
         }
+
 
         public Product Get(int id)
         {
@@ -53,11 +57,12 @@ namespace Test
            
         }
 
+       
         public List<Product> GetAll()
         {
-            string path = "C:\\Users\\user\\Desktop\\Folder1\\";
-            string filePath = Path.Combine(path, "example.txt");
 
+            string path = "C:\\Users\\user\\Desktop\\Folder1\\";
+              string filePath = Path.Combine(path, "example.txt");
             if (!File.Exists(filePath))
             {
                 Console.WriteLine("No products found.");
@@ -65,59 +70,61 @@ namespace Test
             }
 
             var products = new List<Product>();
-            string[] contents = File.ReadAllLines(filePath);
+            var lines = File.ReadAllLines(filePath);
 
-            foreach (var item in contents)
+            foreach (var line in lines)
             {
-                Product product = JsonSerializer.Deserialize<Product>(item);
-                if (product != null)
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                try
                 {
-                    products.Add(product);
+                    var product = JsonSerializer.Deserialize<Product>(line);
+                    if (product != null)
+                    {
+                        products.Add(product);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error parsing line: {line}. Exception: {ex.Message}");
                 }
             }
 
             return products;
         }
+
+
+        
+
         public void Delete(int id)
         {
-
             var products = GetAll();
-
-
             var productToDelete = products.Find(p => p.ID == id);
 
-
-            if (productToDelete != null)
+            if (productToDelete == null)
             {
+                Console.WriteLine($"Product with ID {id} not found.");
+                return;
+            }
 
-                products.Remove(productToDelete);
+            products.Remove(productToDelete);
 
-                string path = "C:\\Users\\user\\Desktop\\Folder1\\";
-                string filePath = Path.Combine(path, "example.txt");
+            string path = "C:\\Users\\user\\Desktop\\Folder1\\";
+            string filePath = Path.Combine(path, "example.txt");
 
-                File.WriteAllText(filePath, string.Empty);
-
-
+      
+            using (StreamWriter streamWriter = new StreamWriter(filePath, false))
+            {
                 foreach (var product in products)
                 {
                     var productJson = JsonSerializer.Serialize(product);
-                    using (StreamWriter streamWriter = new StreamWriter(filePath, true))
-                    {
-                        streamWriter.WriteLine(productJson);
-                    }
+                    streamWriter.WriteLine(productJson);
                 }
-
-                Console.WriteLine($"Product with ID {id} has been deleted.");
             }
 
-            else if (id < 0)
-            {
-                throw new ArgumentException();
-            }
-            else
-            {
-                Console.WriteLine($"Product with ID {id} not found.");
-            }
+            Console.WriteLine($"Product with ID {id} has been deleted.");
         }
+
     }
 }
+

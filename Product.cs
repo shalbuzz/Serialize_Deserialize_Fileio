@@ -18,11 +18,20 @@ namespace Test
             get => _salePrice;
             set
             {
-                if (value < CostPrice)
+                try
                 {
-                    throw new ArgumentException("SalePrice cannot be lower than CostPrice.");
+                    if (value < CostPrice)
+                    {
+                        throw new ArgumentException("SalePrice cannot be lower than CostPrice.");
+                    }
+                    _salePrice = (int)value;
                 }
-                _salePrice = (int)value;
+                catch (ArgumentException ex) {
+
+
+                    Console.WriteLine("SalePrice cannot be lower than CostPrice.");
+                }
+               
             }
         }
 
