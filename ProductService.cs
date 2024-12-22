@@ -122,7 +122,7 @@ namespace Test
                 }
             }
 
-            Console.WriteLine($"Product with ID {id} has been deleted.");
+           
         }
 
     }
